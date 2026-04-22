@@ -1,1 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Help Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F7F5F2; --card: #ffffff; --ink: #1a1a1a; --muted: #6b6b6b;
+      --border: #e2ddd8; --accent: #2563EB; --accent-dark: #1d4ed8;
+      --accent-light: #eff6ff; --green: #16a34a; --red: #dc2626;
+    }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 2rem 1rem;
+    }
+    .wrapper { width: 100%; max-width: 480px; }
+    .brand { text-align: center; margin-bottom: 2rem; animation: fadeUp 0.5s ease both; }
+    .brand-icon {
+      width: 52px; height: 52px; background: var(--accent); border-radius: 14px;
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-bottom: 0.75rem; box-shadow: 0 4px 14px rgba(37,99,235,0.3);
+    }
+    .brand h1 { font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; font-weight: 600; color: var(--ink); }
+    .brand p { font-size: 0.88rem; color: var(--muted); margin-top: 0.25rem; }
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+      padding: 2.25rem 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05), 0 12px 40px rgba(0,0,0,0.07);
+      animation: fadeUp 0.5s ease 0.1s both;
+    }
+    .step { display: none; }
+    .step.active { display: block; }
+    .steps-indicator { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.75rem; }
+    .step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background 0.3s, transform 0.3s; }
+    .step-dot.active { background: var(--accent); transform: scale(1.25); }
+    .step-dot.done { background: var(--green); }
+    .step-label { font-size: 0.78rem; font-weight: 500; color: var(--muted); margin-left: 0.25rem; }
+    .card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; color: var(--ink); margin-bottom: 0.3rem; }
+    .card-sub { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.5; }
+    .field { margin-bottom: 1.1rem; }
+    label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--ink); margin-bottom: 0.4rem; }
+    label .req { color: var(--red); margin-left: 2px; }
+    input[type="text"], input[type="email"], textarea {
+      width: 100%; font-family: 'Outfit', sans-serif; font-size: 0.95rem;
+      color: var(--ink); background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 0.7rem 0.95rem; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s; resize: none;
+    }
+    input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); background: #fff; }
+    input.error, textarea.error { border-color: var(--red); box-shadow: 0 0 0 3px rgba(220,38,38,0.08); }
+    .error-msg { font-size: 0.78rem; color: var(--red); margin-top: 0.3rem; display: none; }
+    .error-msg.show { display: block; }
+    textarea { min-height: 110px; line-height: 1.55; }
+    .btn {
+      width: 100%; background: var(--accent); color: #fff; font-family: 'Outfit', sans-serif;
+      font-size: 0.97rem; font-weight: 600; border: none; border-radius: 10px;
+      padding: 0.82rem; cursor: pointer; margin-top: 0.5rem;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
+    .btn:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(37,99,235,0.3); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .greeting {
+      display: flex; align-items: center; gap: 0.75rem;
+      background: var(--accent-light); border: 1px solid #bfdbfe;
+      border-radius: 12px; padding: 0.85rem 1rem; margin-bottom: 1.5rem;
+    }
+    .greeting-avatar {
+      width: 38px; height: 38px; background: var(--accent); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem;
+    }
+    .greeting-text { font-size: 0.85rem; color: var(--ink); line-height: 1.4; }
+    .greeting-text strong { font-weight: 600; }
+    .online-badge { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; font-weight: 500; color: var(--green); margin-bottom: 1.2rem; }
+    .online-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+    .char-count { font-size: 0.76rem; color: var(--muted); text-align: right; margin-top: 0.3rem; }
 
+    /* Loading overlay */
+    #chat-loading {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 9999;
+      align-items: center; justify-content: center;
+    }
+    #chat-loading.show { display: flex; }
+    .loading-box {
+      background: white; border-radius: 16px; padding: 2rem 2.5rem;
+      text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .spinner {
+      width: 40px; height: 40px; border: 3px solid #e2ddd8;
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin: 0 auto 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-box p { font-size: 0.9rem; color: var(--muted); }
+
+    @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(22,163,74,0.4); } 50% { box-shadow: 0 0 0 5px rgba(22,163,74,0); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeUp 0.4s ease both; }
+    .footer-note { text-align: center; font-size: 0.78rem; color: var(--muted); margin-top: 1.25rem; animation: fadeUp 0.5s ease 0.2s both; }
+    .footer-note a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<!-- Loading overlay shown while chat widget loads -->
+<div id="chat-loading">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <p>Opening your chat...<br>One moment please.</p>
+  </div>
+</div>
+
+<div class="wrapper">
+  <div class="brand">
+    <div class="brand-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+    </div>
+    <h1>Help Center</h1>
+    <p>We're here to help — just reach out.</p>
+  </div>
+
+  <div class="card">
+    <div class="steps-indicator">
+      <div class="step-dot active" id="dot1"></div>
+      <div class="step-dot" id="dot2"></div>
+      <span class="step-label" id="step-label-text">Step 1 of 2</span>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="step active" id="step1">
+      <div class="card-title">Before we begin</div>
+      <p class="card-sub">Please enter your details so we know who we're speaking with.</p>
+      <div class="field">
+        <label for="username">Your Name <span class="req">*</span></label>
+        <input type="text" id="username" placeholder="e.g. Jane Smith" autocomplete="name"/>
+        <div class="error-msg" id="err-name">Please enter your name.</div>
+      </div>
+      <div class="field">
+        <label for="email">Email Address <span class="req">*</span></label>
+        <input type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
+        <div class="error-msg" id="err-email">Please enter a valid email address.</div>
+      </div>
+      <button class="btn" id="continueBtn" onclick="goToStep2()">
+        Continue
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step" id="step2">
+      <div class="greeting fade-in">
+        <div class="greeting-avatar">👋</div>
+        <div class="greeting-text">
+          Hey <strong id="display-name"></strong>! Ask us anything and we'll get back to you right away.
+        </div>
+      </div>
+      <div class="online-badge">
+        <span class="online-dot"></span>
+        Kim Flora is online
+      </div>
+      <div class="card-title">Ask Anything</div>
+      <p class="card-sub">Type your question or message below. Click Send and the chat will open instantly.</p>
+      <div class="field">
+        <label for="message">Your Message <span class="req">*</span></label>
+        <textarea id="message" placeholder="Describe your question or issue..." maxlength="500" oninput="updateCount()"></textarea>
+        <div class="char-count"><span id="char-num">0</span> / 500</div>
+        <div class="error-msg" id="err-msg">Please type a message before sending.</div>
+      </div>
+      <button class="btn" id="sendBtn" onclick="sendMessage()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Send Message
+      </button>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    Powered by <a href="https://tawk.to" target="_blank">Tawk.to</a> · Messages go directly to Kim Flora
+  </div>
+</div>
+
+<!-- ✅ Tawk.to script loaded FIRST, before any function calls it -->
+<script type="text/javascript">
+  var Tawk_API = Tawk_API || {};
+  var Tawk_LoadStart = new Date();
+  var isTawkReady = false;
+
+  // This fires when Tawk widget is fully loaded
+  Tawk_API.onLoad = function() {
+    isTawkReady = true;
+    // Hide the widget bubble by default — we control it manually
+    Tawk_API.hideWidget();
+    document.getElementById('chat-loading').classList.remove('show');
+  };
+
+  (function(){
+    var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
+    s1.async = true;
+    s1.src = 'https://embed.tawk.to/69e84a95b84bb21c2c714d6f/1jmpm6mua';
+    s1.charset = 'UTF-8';
+    s1.setAttribute('crossorigin', '*');
+    s0.parentNode.insertBefore(s1, s0);
+  })();
+</script>
+
+<script>
+  function goToStep2() {
+    const nameEl  = document.getElementById('username');
+    const emailEl = document.getElementById('email');
+    const errName = document.getElementById('err-name');
+    const errMail = document.getElementById('err-email');
+    let valid = true;
+
+    nameEl.classList.remove('error');  errName.classList.remove('show');
+    emailEl.classList.remove('error'); errMail.classList.remove('show');
+
+    if (!nameEl.value.trim()) {
+      nameEl.classList.add('error'); errName.classList.add('show'); valid = false;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim())) {
+      emailEl.classList.add('error'); errMail.classList.add('show'); valid = false;
+    }
+    if (!valid) return;
+
+    document.getElementById('display-name').textContent = nameEl.value.trim().split(' ')[0];
+    document.getElementById('step1').classList.remove('active');
+    document.getElementById('step2').classList.add('active');
+    document.getElementById('dot1').classList.remove('active');
+    document.getElementById('dot1').classList.add('done');
+    document.getElementById('dot2').classList.add('active');
+    document.getElementById('step-label-text').textContent = 'Step 2 of 2';
+  }
+
+  function updateCount() {
+    document.getElementById('char-num').textContent = document.getElementById('message').value.length;
+  }
+
+  function sendMessage() {
+    const msgEl  = document.getElementById('message');
+    const errMsg = document.getElementById('err-msg');
+
+    msgEl.classList.remove('error'); errMsg.classList.remove('show');
+    if (!msgEl.value.trim()) {
+      msgEl.classList.add('error'); errMsg.classList.add('show'); return;
+    }
+
+    const name    = document.getElementById('username').value.trim();
+    const email   = document.getElementById('email').value.trim();
+    const message = msgEl.value.trim();
+
+    // Show loading overlay while we wait for Tawk
+    document.getElementById('chat-loading').classList.add('show');
+
+    function openChat() {
+      // Tag the visitor with their name & email so YOU see it in your dashboard
+      Tawk_API.setAttributes({ name: name, email: email }, function(err) {});
+
+      // Send their message into the chat automatically
+      Tawk_API.sendMessage(message);
+
+      // Show the chat widget
+      Tawk_API.showWidget();
+      Tawk_API.maximize();
+
+      // Hide loading overlay
+      document.getElementById('chat-loading').classList.remove('show');
+    }
+
+    if (isTawkReady) {
+      openChat();
+    } else {
+      // Wait up to 10 seconds for Tawk to finish loading
+      var attempts = 0;
+      var interval = setInterval(function() {
+        attempts++;
+        if (isTawkReady) {
+          clearInterval(interval);
+          openChat();
+        } else if (attempts >= 20) {
+          clearInterval(interval);
+          document.getElementById('chat-loading').classList.remove('show');
+          alert("Chat is taking too long to load. Please refresh the page and try again.");
+        }
+      }, 500);
+    }
+  }
+</script>
+
+</body>
+</html>
