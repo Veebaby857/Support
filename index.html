@@ -81,28 +81,6 @@
     .online-badge { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; font-weight: 500; color: var(--green); margin-bottom: 1.2rem; }
     .online-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
     .char-count { font-size: 0.76rem; color: var(--muted); text-align: right; margin-top: 0.3rem; }
-
-    /* Loading overlay */
-    #chat-loading {
-      display: none;
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.45);
-      z-index: 9999;
-      align-items: center; justify-content: center;
-    }
-    #chat-loading.show { display: flex; }
-    .loading-box {
-      background: white; border-radius: 16px; padding: 2rem 2.5rem;
-      text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-    }
-    .spinner {
-      width: 40px; height: 40px; border: 3px solid #e2ddd8;
-      border-top-color: var(--accent); border-radius: 50%;
-      animation: spin 0.8s linear infinite; margin: 0 auto 1rem;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-box p { font-size: 0.9rem; color: var(--muted); }
-
     @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(22,163,74,0.4); } 50% { box-shadow: 0 0 0 5px rgba(22,163,74,0); } }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
     .fade-in { animation: fadeUp 0.4s ease both; }
@@ -111,14 +89,6 @@
   </style>
 </head>
 <body>
-
-<!-- Loading overlay shown while chat widget loads -->
-<div id="chat-loading">
-  <div class="loading-box">
-    <div class="spinner"></div>
-    <p>Opening your chat...<br>One moment please.</p>
-  </div>
-</div>
 
 <div class="wrapper">
   <div class="brand">
@@ -152,7 +122,7 @@
         <input type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
         <div class="error-msg" id="err-email">Please enter a valid email address.</div>
       </div>
-      <button class="btn" id="continueBtn" onclick="goToStep2()">
+      <button class="btn" onclick="goToStep2()">
         Continue
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </button>
@@ -178,7 +148,7 @@
         <div class="char-count"><span id="char-num">0</span> / 500</div>
         <div class="error-msg" id="err-msg">Please type a message before sending.</div>
       </div>
-      <button class="btn" id="sendBtn" onclick="sendMessage()">
+      <button class="btn" onclick="sendMessage()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Send Message
       </button>
@@ -190,24 +160,21 @@
   </div>
 </div>
 
-<!-- ✅ Tawk.to script loaded FIRST, before any function calls it -->
+<!-- ✅ CORRECT Tawk.to Script with your real property ID -->
 <script type="text/javascript">
   var Tawk_API = Tawk_API || {};
   var Tawk_LoadStart = new Date();
   var isTawkReady = false;
 
-  // This fires when Tawk widget is fully loaded
   Tawk_API.onLoad = function() {
     isTawkReady = true;
-    // Hide the widget bubble by default — we control it manually
-    Tawk_API.hideWidget();
-    document.getElementById('chat-loading').classList.remove('show');
+    Tawk_API.hideWidget(); // hide bubble — we open it on Send
   };
 
   (function(){
     var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
     s1.async = true;
-    s1.src = 'https://embed.tawk.to/69e84a95b84bb21c2c714d6f/1jmpm6mua';
+    s1.src = 'https://embed.tawk.to/69e7a1d06e94cf1c3c34acde/default';
     s1.charset = 'UTF-8';
     s1.setAttribute('crossorigin', '*');
     s0.parentNode.insertBefore(s1, s0);
@@ -259,28 +226,18 @@
     const email   = document.getElementById('email').value.trim();
     const message = msgEl.value.trim();
 
-    // Show loading overlay while we wait for Tawk
-    document.getElementById('chat-loading').classList.add('show');
-
     function openChat() {
-      // Tag the visitor with their name & email so YOU see it in your dashboard
+      // Pass visitor name & email to your Tawk.to dashboard
       Tawk_API.setAttributes({ name: name, email: email }, function(err) {});
-
-      // Send their message into the chat automatically
-      Tawk_API.sendMessage(message);
-
-      // Show the chat widget
+      // Show and open the chat widget
       Tawk_API.showWidget();
       Tawk_API.maximize();
-
-      // Hide loading overlay
-      document.getElementById('chat-loading').classList.remove('show');
     }
 
     if (isTawkReady) {
       openChat();
     } else {
-      // Wait up to 10 seconds for Tawk to finish loading
+      // Retry every 500ms for up to 10 seconds
       var attempts = 0;
       var interval = setInterval(function() {
         attempts++;
@@ -289,8 +246,7 @@
           openChat();
         } else if (attempts >= 20) {
           clearInterval(interval);
-          document.getElementById('chat-loading').classList.remove('show');
-          alert("Chat is taking too long to load. Please refresh the page and try again.");
+          alert("Chat is taking too long to load. Please refresh and try again.");
         }
       }, 500);
     }
